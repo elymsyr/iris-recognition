@@ -1,0 +1,6 @@
+CASIA-Iris-Thousand
+
+https://www.kaggle.com/datasets/sondosaabed/casia-iris-thousand
+
+CASIA-Iris-Thousand contains 20,010 iris images from 1,000 subjects, which were collected using IKEMB-100 camera (Fig. 8) produced by IrisKing. IKEMB-100 is a dual-eye iris camera with friendly visual feedback, realizing the effect of “What You See Is What You Get”. The bounding boxes shown in the frontal LCD help users adjust their pose for high-quality iris image acquisition. The main sources of intra-class variations in CASIA-Iris-Thousand are eyeglasses and specular reflections. Since CASIA-Iris-Thousand is the first publicly available iris dataset with one thousand subjects, it is well-suited for studying the uniqueness of iris features and develop novel iris classification and indexing methods.
+
