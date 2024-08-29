@@ -1,1 +1,0 @@
-from iris_recognition_system import IrisRecognizer, IrisSystem
