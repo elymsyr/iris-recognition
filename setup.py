@@ -7,13 +7,13 @@ with open("requirements.txt") as f:
     required = f.read().splitlines()
 
 setup(
-    name="iris_recognizer_system",
+    name="iris_recognition",
     version="0.0.1",
-    description="""Iris Recognizer System allows you to analyze iris images and compare them. Also it brings a database control.""",
+    description="""Python Application for an Iris Recognition System using OpenCV. The project aims to create a database system and iris analyzer for fast fast and accurate iris recognition. See for more, https://github.com/elymsyr/iris-recognition.""",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Orhun Eren Yalçınkaya",
-    packages=find_packages(include=["iris_recognizer_system"]),
+    packages=find_packages(include=["iris_recognition"]),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
