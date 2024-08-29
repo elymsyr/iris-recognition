@@ -1,1 +1,1 @@
-from iris_recognition_system import IrisRecognizer, IrisSystem
+from .iris_recognition import IrisRecognizer, IrisSystem
