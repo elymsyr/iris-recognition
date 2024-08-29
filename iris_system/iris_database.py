@@ -5,20 +5,17 @@ from pickle import dumps, loads
 from gzip import open
 from json import dump
 import cv2
-from iris_recognition import IrisRecognizer
+from os import listdir
+from .iris_recognition import IrisRecognizer
 
 class IrisDatabaseSystem():
-    def __init__(self, db_name: str, db_path: str = None) -> None:
+    def __init__(self, db_name: str) -> None:
         """Iris Database Control System 
 
         Args:
-            db_name (str): Create new db
-            db_path (str, optional): Add existing db. Defaults to None.
+            db_name (str): Create new db using self.create_tables() or use existing db.
         """
-        if not db_path:
-            self.create_tables()
-            self.db_name = db_name
-        else: self.db_name = db_path
+        self.db_name = db_name
         self.recognizer = IrisRecognizer()
 
     def load_to_db(self, image_name: str, rois_id: int, img_path: str, show: bool = False):
