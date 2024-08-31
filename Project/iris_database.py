@@ -21,20 +21,6 @@ class IrisSystem():
         # if not exists(f'{self.db_path}.db'): self.create_tables()
         self.recognizer = recognizer
 
-    @counter
-    def load_to_db(self, image_name: str, rois_id: int, rois: dict = None):
-        """Analyze iris and import data to db.
-
-        Args:
-            image_name (str): feature_tag
-            rois_id (int) 
-            img_path (str)
-            show (bool, optional): Show while analyzing. Defaults to False.
-        Returns:
-            rois (dict)
-        """
-        self.insert_iris(image_name, rois_id, rois)
-
     def create_tables(self):
         conn = connect(f'{self.db_path}.db')
         c = conn.cursor()
@@ -219,7 +205,7 @@ class IrisSystem():
                 image_name = image.replace('.jpg','')
                 if self.check_db_free(image_name):
                     rois = self.recognizer.load_rois_from_image(iris_path, False)
-                    self.load_to_db(image_name, id, rois)
+                    self.insert_iris(image_name, id, rois)
                 else: print(f'{image_name} found in db.')
 
 
