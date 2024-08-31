@@ -1,7 +1,6 @@
 
 /IrisDB
-playground.py
-url_phone.py
+playground.*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

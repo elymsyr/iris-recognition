@@ -8,7 +8,7 @@ with open("requirements.txt") as f:
 
 setup(
     name="iris_system",
-    version="0.0.1",
+    version="0.0.2",
     description="""Python Application for an Iris Recognition System using OpenCV. The project aims to create a database system and iris analyzer for fast fast and accurate iris recognition. See for more, https://github.com/elymsyr/iris-recognition.""",
     long_description=long_description,
     long_description_content_type="text/markdown",
