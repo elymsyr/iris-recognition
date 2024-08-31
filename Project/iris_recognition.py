@@ -584,6 +584,42 @@ class IrisRecognizer():
                 cv2.destroyAllWindows()
 
         return numberof_matches
+    
+    def getall_matches_kp(self, rois_1, rois_2, dratio,
+                     stdev_angle, stdev_dist, show=False):
+        img_matches = []
+        numberof_matches = {'right-side': 0,
+                    'left-side': 0,
+                    'bottom': 0,
+                    'complete': 0}
+        numberof_matches_detailed = {'right-side': [],
+                    'left-side': [],
+                    'bottom': [],
+                    'complete': []}
+
+        for pos in ['right-side','left-side','bottom','complete']:
+            if not rois_1[pos]['kp'] or not rois_2[pos]['kp']:
+                print("KeyPoints not found in one of rois_x[pos]['kp'] !!!")
+                print(" -->", pos, len(rois_1[pos]['kp']), len(rois_2[pos]['kp']))
+            else:
+                matches = self.get_matches(rois_1[pos], rois_2[pos],
+                                    dratio, stdev_angle, stdev_dist)
+                numberof_matches[pos] = len(matches)
+                numberof_matches_detailed[pos] = matches
+
+            if show:
+                print("{0} matches: {1}".format(pos, str(len(matches))))
+                crt_image = cv2.drawMatchesKnn(
+                                rois_1[pos]['img'],rois_1[pos]['kp'],
+                                rois_2[pos]['img'],rois_2[pos]['kp'],
+                                [matches], flags=2, outImg=None)
+
+                img_matches.append(crt_image)
+                cv2.imshow('matches', crt_image)
+                if cv2.waitKey(10000): pass
+                cv2.destroyAllWindows()
+
+        return numberof_matches, numberof_matches_detailed
 
     def get_matches(self, roipos_1, roipos_2,
                     dratio, stdev_angle, stdev_dist):
