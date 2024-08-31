@@ -424,8 +424,6 @@ class IrisSystemOptimizationTest(IrisSystem):
         best_list = max(list_avg_differences, key=list_avg_differences.get)
         best_param, best_param_diff = parameter_best_differences[best_list]
 
-        # Print results
-        print(f"The better list is: {best_list}")
         print(f"The best parameter in this list is: {best_param} with an average difference of {best_param_diff:.2f}")
         return best_list, results[best_list]['parameters'][best_param], results
 
