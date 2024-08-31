@@ -56,7 +56,7 @@ def counter(func):
         start = perf_counter()
         result = func(*args, **kwargs)
         end = perf_counter()
-        print(f"      {func.__name__} ended in {end - start:.6f} seconds.")
+        print(f"{func.__name__} ended in {end - start:.6f} seconds.")
         return result
     return wrapper
 

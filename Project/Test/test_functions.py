@@ -1,16 +1,19 @@
 from os import remove
 import numpy as np
 from os.path import exists
-import cv2
-from Project.iris_database import IrisSystem
+import cv2, sys
+sys.path.append('Project')
+sys.path.append('Project/Test')
+sys.path.append('Database')
+from iris_database import IrisSystem
 
 DB_PATH = 'Project/Test/test'
 DB_PATH_EXT = 'Project/Test/test.db'
 IMAGE = 'Project/Test/test_image.jpg'
 
-def compare_rois(rois_export, rois_import):
-    comparison = []
+def compare_rois(rois_export: dict, rois_import: dict):
     del rois_import['iris_metadata']
+    comparison = []
     comparison.append(rois_export.keys() == rois_import.keys())
     comparison.append(rois_export['kp_len'] == rois_import['kp_len'])
     comparison.append(rois_export['desc_len'] == rois_import['desc_len'])
@@ -20,6 +23,7 @@ def compare_rois(rois_export, rois_import):
         comparison.append(are_keypoints_identical(rois_export[pos]['kp'], rois_import[pos]['kp']))
         comparison.append(rois_export[pos]['pupil_circle'] == rois_import[pos]['pupil_circle'])
         comparison.append(rois_export[pos]['ext_circle'] == rois_import[pos]['ext_circle'])
+    if False in comparison: print(comparison)
     return(all(comparison))
 
 def fake_rois():
@@ -35,7 +39,7 @@ def fake_rois():
     rois_export['kp_len'] = 200
     rois_export['desc_len'] = 300
     rois_export['kp_filtered_len'] = 400
-    return rois_export    
+    return rois_export
 
 def are_keypoints_identical(kp_tuple1, kp_tuple2):
     if len(kp_tuple1) != len(kp_tuple2):
