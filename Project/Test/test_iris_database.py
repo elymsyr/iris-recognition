@@ -24,6 +24,6 @@ def test_check_exists():
     system = start_db()
     rois_export = fake_rois()
     system.insert_iris('tag_test_1', 1, rois_export)   
-    assert not system.check_exists(feature_tag='tag_test_1')
+    assert not system.check_db_free(feature_tag='tag_test_1')
 
 

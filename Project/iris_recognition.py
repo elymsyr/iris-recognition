@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 from decorators import counter
 
 class IrisRecognizer():
-    def __init__(self, detector: str = 'SIFT', kp_size_min: int = 0, kp_size_max: int = 50) -> None:
+    def __init__(self, detector: str = 'ORB', kp_size_min: int = 0, kp_size_max: int = 100) -> None:
         self.detector = detector
         self.kp_size_min = kp_size_min
         self.kp_size_max = kp_size_max
@@ -17,7 +17,7 @@ class IrisRecognizer():
     @counter
     def load_rois_from_image(self, filepath: str, show = True):
         img = self.load_image(filepath, show)
-        print(f"\nImage loaded -> {(filepath.split('/'))[-3:]}")
+        print(f"\nImage loaded -> {filepath}")
 
         print(f"Getting iris boundaries ...")
         pupil_circle, ext_iris_circle = self.get_iris_boundaries(img, show=show) # Getting iris boundaries includes outer and inner boundary.
