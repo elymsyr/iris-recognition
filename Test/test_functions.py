@@ -5,11 +5,11 @@ import cv2, sys
 sys.path.append('Project')
 sys.path.append('Project/Test')
 sys.path.append('Database')
-from iris_database import IrisSystem
+from iris_database import IrisSystem # type: ignore
 
-DB_PATH = 'Project/Test/test'
-DB_PATH_EXT = 'Project/Test/test.db'
-IMAGE = 'Project/Test/test_image.jpg'
+DB_PATH = 'Test/test'
+DB_PATH_EXT = 'Test/test.db'
+IMAGE = 'Test/test_image.jpg'
 
 def compare_rois(rois_export: dict, rois_import: dict):
     del rois_import['iris_metadata']
