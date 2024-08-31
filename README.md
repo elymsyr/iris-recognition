@@ -1,6 +1,8 @@
 # Iris Recognition System
 
-This project is an iris recognition system ([Iris Recognition forked from **andreibercu/iris-recognition**](https://github.com/andreibercu/iris-recognition)) to analyze and recognize iris images. It includes functionality for feature extraction, comparison of iris features, and performance improvements for various scenarios, including suboptimal camera conditions. The project has been updated to run on Python 3.9.x and includes functionality to save iris data to a database. There are also plans to develop a dynamic system with a GUI or mobile app for real-time use.
+This project aims to analyze and recognize iris images. It includes functionality for feature extraction, comparison of iris features, and performance improvements for various scenarios, including suboptimal camera conditions. The project has been updated to run on Python 3.9.x and includes functionality to save iris data to a database. There are plans to develop a dynamic system with a GUI or mobile app for real-time use.
+
+Iris Recognition project forked from [**andreibercu/iris-recognition**](https://github.com/andreibercu/iris-recognition). I have had to recreate the repository and forgot to fork it again.
 
 ## Table of Contents
 
@@ -12,7 +14,7 @@ This project is an iris recognition system ([Iris Recognition forked from **andr
 - [Contact](#contact)
 
 ## Development
-- [ ] **Improved Iris Analysis**: Improving analyze speed and extraction of features from iris images and creating a dictionary for recognition.
+- [ ] **Improved Iris Analysis**: Improving analysis speed and extraction of features from iris images and creating a dictionary for recognition.
 - [ ] **Performance Improvements**: Enhancements for recognition performance and speed, especially under suboptimal camera conditions.
 - [x] **Database Integration**: Save and retrieve iris data using a database.
   - [ ] Optimization for fast query.
@@ -20,7 +22,7 @@ This project is an iris recognition system ([Iris Recognition forked from **andr
 
 ## Installation
 
-For latest release:
+For the latest release:
 ```
 pip install iris_recognition_system
 ```
