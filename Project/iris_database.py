@@ -208,8 +208,6 @@ class IrisSystem():
                     self.insert_iris(image_name, id, rois)
                 else: print(f'{image_name} found in db.')
 
-
-class IrisSystemOptimizationTest(IrisSystem):
     @counter
     # @suppress_print
     def compare_iris(self, image_tag_1: str, image_tag_2: str, dratio: float = 0.8, stdev_angle: int = 10, stdev_dist: float = 0.15, show = False) -> tuple[dict, dict, dict]:
@@ -237,6 +235,8 @@ class IrisSystemOptimizationTest(IrisSystem):
         numberof_matches, numberof_matches_detailed = self.recognizer.getall_matches_kp(rois_1=rois_1, rois_2=rois_2, dratio=dratio, stdev_angle=stdev_angle, stdev_dist=stdev_dist, show=show)
         return rois_1, rois_2, numberof_matches, numberof_matches_detailed
 
+
+class IrisSystemOptimizationTest(IrisSystem):
     def random_iris_tag(self, iris_id: int) -> str:
         """Get random iris tag with iris_id.
 
