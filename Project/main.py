@@ -10,8 +10,6 @@ parameters = {
 
 db_path = f"Database/iris_db_syn_{parameters['detector'].lower()}_{parameters['kp_size_min']}_{parameters['kp_size_max']}"
 
-print(db_path)
-
 recognizer = IrisRecognizer(**parameters)
 system = IrisSystem(db_path=db_path, recognizer=recognizer)
 

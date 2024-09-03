@@ -3,7 +3,7 @@ from os import listdir
 from random import choice
 from pickle import dumps, loads
 from gzip import open
-import cv2
+import cv2, csv
 from random import shuffle
 from iris_recognition import IrisRecognizer
 from decorators import counter, suppress_print, capture_prints_to_file
@@ -232,8 +232,8 @@ class IrisSystem():
         """
         rois_1 = self.retrieve_iris(image_tag_1)
         rois_2 = self.retrieve_iris(image_tag_2)
-        numberof_matches, numberof_matches_detailed = self.recognizer.getall_matches_kp(rois_1=rois_1, rois_2=rois_2, dratio=dratio, stdev_angle=stdev_angle, stdev_dist=stdev_dist, show=show)
-        return rois_1, rois_2, numberof_matches, numberof_matches_detailed
+        numberof_matches, matches_detailed = self.recognizer.getall_matches_kp(rois_1=rois_1, rois_2=rois_2, dratio=dratio, stdev_angle=stdev_angle, stdev_dist=stdev_dist, show=show)
+        return rois_1, rois_2, numberof_matches, matches_detailed
 
 
 class IrisSystemOptimizationTest(IrisSystem):
@@ -295,6 +295,8 @@ class IrisSystemOptimizationTest(IrisSystem):
         results_dif = {}
         results_same = {}
         
+        matched = []
+        
         param_dict = {}
         param_dict['false_match'] = {}
         param_dict['true_match'] = {}
@@ -316,9 +318,15 @@ class IrisSystemOptimizationTest(IrisSystem):
                     test_number += 1
                     print(f"\nTest Parameter Number {test_number} of {test_data_len}\n")
                     new_test = {}
-                    id_list = [id for id in number_list]
+                    first_class = ''
+                    second_class = ''
                     random_iris = True
-                    while random_iris:
+                    loop_counter = 0
+                    while random_iris or f"{first_class}{second_class}" in matched:
+                        loop_counter += 1
+                        if loop_counter > 10: break
+                        random_iris = True
+                        id_list = [id for id in number_list]
                         first_class = (choice(id_list))
                         if test_order == 0:
                             id_list.remove(first_class)
@@ -342,6 +350,7 @@ class IrisSystemOptimizationTest(IrisSystem):
                                     random_iris = True
                                     break
                                 tag_counter += 1
+                    matched.append(f"{first_class}{second_class}")
                     print(f"Analysing {first_class}/{rois_1} {second_class}/{rois_2}...")
                     try:
                         iris_1, iris_2, matches, matches_detailed = self.compare_iris(image_tag_1=rois_1, image_tag_2=rois_2, **parameter)
@@ -446,3 +455,37 @@ class IrisSystemOptimizationTest(IrisSystem):
         conn.close()
 
         return unique_iris_ids
+
+    def key_points_classify(self, results: dict, parameter_id: int = 0):
+        def add_to_csv_dict(kp: cv2.KeyPoint, to_csv: list, pos: str, tag: str, match_point: int):
+            new_item = {}
+            new_item['match'] = match_point
+            new_item['image_tag'] = tag
+            new_item['pos'] = pos
+            new_item['point_x'] = int(kp.pt[0])
+            new_item['point_y'] = int(kp.pt[1])
+            new_item['size'] = kp.size
+            new_item['angle'] = kp.angle
+            new_item['response'] = kp.response
+            new_item['octave'] = kp.octave
+            to_csv.append(new_item)
+            return to_csv
+        to_csv: list = []
+        for match_point, match in enumerate(['false_match', 'true_match']):
+            for key, value in results[match]['details'][parameter_id].items():
+                tag_1 = value['tags'][0]
+                tag_2 = value['tags'][1]
+                rois_1 = self.retrieve_iris(tag_1)
+                rois_2 = self.retrieve_iris(tag_2)
+                matches = value['matches_detailed']
+                sides = ['right-side', 'left-side', 'bottom', 'complete']
+
+                for pos in sides:
+                    for match in matches[pos]:
+                        queryIdx = match['queryIdx']
+                        trainIdx = match['trainIdx']
+                        key_point_1 = rois_1[pos]['kp'][queryIdx-1]
+                        key_point_2 = rois_2[pos]['kp'][trainIdx-1]
+                        to_csv = add_to_csv_dict(key_point_1, to_csv, pos, tag_1, match_point)
+                        to_csv = add_to_csv_dict(key_point_2, to_csv, pos, tag_2, match_point)
+        return to_csv
