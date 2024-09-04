@@ -6,54 +6,14 @@ from gzip import open
 from inspect import getouterframes, currentframe
 import cv2, math
 from matplotlib import pyplot as plt
-from .decorators import counter
 
 class IrisRecognizer():
-    """
-    A class for iris recognition that processes images to detect and analyze the iris and pupil.
-
-    Attributes:
-        detector : str
-            The feature detection algorithm to use ('ORB' or 'SIFT').
-        kp_size_min : int
-            The minimum size of keypoints to consider.
-        kp_size_max : int
-            The maximum size of keypoints to consider.
-
-    Methods:
-        - **load_rois_from_image(filepath: str, show: bool = True)**
-            Loads an image, detects iris boundaries, and extracts regions of interest (ROIs).
-        
-        - **load_image(filepath: str, show: bool = False)**
-            Loads an image from a file and optionally displays it.
-
-        - **get_iris_boundaries(img, show: bool = False)**
-            Finds the inner and outer boundaries of the iris.
-
-        - **find_pupil(img)**
-            Detects the pupil boundary using image processing techniques.
-
-        - **get_mean_circle(circles, draw=None)**
-            Computes the mean circle from a list of detected circles.
-
-        - **find_ext_iris(img, pupil_circle, center_range, radius_range)**
-            Detects the outer boundary of the iris using the Hough Circles method.
-
-        - **point_in_circle(c_col, c_row, c_radius, p_col, p_row)**
-            Checks if a point is within a given circle.
-
-        - **filtered_circles(circles, draw=None)**
-            Filters the detected circles to find the most likely candidates for the iris boundary.
-    """
-    def __init__(self, detector: str = 'ORB', kp_size_min: int = 0, kp_size_max: int = 100) -> None:
-        self.detector = detector
-        self.kp_size_min = kp_size_min
-        self.kp_size_max = kp_size_max
-
-    @counter
+    def __init__(self) -> None:
+        pass
+    
     def load_rois_from_image(self, filepath: str, show = True):
-        img = self.load_image(filepath, show)
-        print(f"\nImage loaded -> {filepath}")
+        img = self.load_image(filepath, show) # show=True
+        print(f"\nImage loaded -> {(filepath.split('/'))[-3:]}")
 
         print(f"Getting iris boundaries ...")
         pupil_circle, ext_iris_circle = self.get_iris_boundaries(img, show=show) # Getting iris boundaries includes outer and inner boundary.
@@ -68,13 +28,9 @@ class IrisRecognizer():
         rois = self.get_rois(roi, pupil_circle, ext_iris_circle, show=show)
 
         print("Searching for keypoints ...")
-        detector = None
-        if self.detector == 'SIFT':
-            detector = cv2.SIFT_create()
-        elif self.detector == 'ORB':
-            detector = cv2.ORB_create()
-        self.load_keypoints(detector, rois, show=show)
-        self.load_descriptors(detector, rois)
+        sift = cv2.SIFT_create()
+        self.load_keypoints(sift, rois, show=show)
+        self.load_descriptors(sift, rois)
 
         print(f"Rois completed for {(filepath.split('/'))[-1].replace('.jpg', '')}.")
         return rois
@@ -87,7 +43,6 @@ class IrisRecognizer():
             cv2.destroyAllWindows()
         return img
 
-    @counter
     def get_iris_boundaries(self, img, show=False):
         # Finding iris inner boundary
         pupil_circle = self.find_pupil(img)
@@ -345,7 +300,6 @@ class IrisRecognizer():
         cv2.circle(cimg, (ext_iris_circle[0], ext_iris_circle[1]),
                 1,(0,255,0),1)
 
-    @counter
     def get_equalized_iris(self, img, ext_iris_circle, pupil_circle, show=False):
         def find_roi():
             mask = img.copy()
@@ -392,7 +346,6 @@ class IrisRecognizer():
 
         return roi
 
-    @counter
     def get_rois(self, img, pupil_circle, ext_circle, show=False):
         bg = img.copy()
         bg[:] = 0
@@ -483,8 +436,7 @@ class IrisRecognizer():
 
         return rois
 
-    @counter
-    def load_keypoints(self, sift, rois, show=False, show_pos: list = ['right-side','left-side','bottom']):
+    def load_keypoints(self, sift, rois, show=False):
         bf = cv2.BFMatcher()
 
 
@@ -519,11 +471,9 @@ class IrisRecognizer():
             inside = 0
             outside = 0
             wrong_angle = 0
-            wrong_kp_size = 0
             if pos == 'complete' : rois['kp_len'] = len(rois[pos]['kp'])
             kp_list = list(rois[pos]['kp'][:])
-            kp_list_loop = list(rois[pos]['kp'][:])
-            for kp in kp_list_loop:
+            for kp in kp_list:
                 c_angle = self.angle_v(rois[pos]['ext_circle'][0],
                                 rois[pos]['ext_circle'][1],
                                 kp.pt[0], kp.pt[1])
@@ -544,17 +494,8 @@ class IrisRecognizer():
                     (pos == 'bottom' and (c_angle <= -135 or c_angle >= -45)):
                     kp_list.remove(kp)
                     wrong_angle +=1
-                elif float(kp.size) > self.kp_size_max or float(kp.size) < self.kp_size_min: 
-                    wrong_kp_size+=1
-                    kp_list.remove(kp)
             rois[pos]['kp'] = tuple(kp_list)
             if pos == 'complete' : rois['kp_filtered_len'] = len(rois[pos]['kp'])
-
-            if show:
-                size = []
-                for keypoint in list(rois[pos]['kp'][:]):
-                    size.append(float(keypoint.size))
-                print(f"\nfor {pos}:original len: {len(kp_list_loop)}\n  len: {len(size)}\n  avg: {sum(size)/len(size)}\n  max: {max(size)}\n  min: {min(size)}\n  total={inside+outside+wrong_angle+wrong_kp_size}\n  {inside=}\n  {outside=}\n  {wrong_angle=}\n  {wrong_kp_size=}")
 
             # Create images with filtered keypoints
             rois[pos]['img_kp_filtered'] = cv2.drawKeypoints(
@@ -573,7 +514,7 @@ class IrisRecognizer():
         # Show keypoints images
         if show:
             i=0
-            for pos in show_pos:
+            for pos in ['right-side','left-side','bottom']:
                 plt.subplot(3, 2, 2*i+1), \
                 plt.imshow(rois[pos]['img_kp_init'])
                 plt.xticks([]), plt.yticks([])
@@ -583,12 +524,14 @@ class IrisRecognizer():
                 i+=1
             plt.show()
 
-    @counter
     def load_descriptors(self, sift, rois):
         for pos in ['right-side','left-side','bottom','complete']:
             rois[pos]['kp'], rois[pos]['des'] = \
                 sift.compute( rois[pos]['img'], rois[pos]['kp'] )
-        rois['desc_len'] = len(rois['complete']['des']) if rois['complete']['des'] is not None else 0
+        rois['desc_len'] = len(rois['complete']['des'])
+        rois['kp_desc_len'] = len(rois['complete']['kp'])
+            # cv2.imshow(f"rois[{pos}]['des']", rois[pos]['des'])
+            # print(rois[pos]['des'][0:2])
 
     def getall_matches(self, rois_1, rois_2, dratio,
                     stdev_angle, stdev_dist, show=False):
@@ -620,42 +563,6 @@ class IrisRecognizer():
                 cv2.destroyAllWindows()
 
         return numberof_matches
-    
-    def getall_matches_kp(self, rois_1, rois_2, dratio,
-                     stdev_angle, stdev_dist, show=False):
-        img_matches = []
-        numberof_matches = {'right-side': 0,
-                    'left-side': 0,
-                    'bottom': 0,
-                    'complete': 0}
-        numberof_matches_detailed = {'right-side': [],
-                    'left-side': [],
-                    'bottom': [],
-                    'complete': []}
-
-        for pos in ['right-side','left-side','bottom','complete']:
-            if not rois_1[pos]['kp'] or not rois_2[pos]['kp']:
-                print("KeyPoints not found in one of rois_x[pos]['kp'] !!!")
-                print(" -->", pos, len(rois_1[pos]['kp']), len(rois_2[pos]['kp']))
-            else:
-                matches = self.get_matches(rois_1[pos], rois_2[pos],
-                                    dratio, stdev_angle, stdev_dist)
-                numberof_matches[pos] = len(matches)
-                numberof_matches_detailed[pos] = matches
-
-            if show:
-                print("{0} matches: {1}".format(pos, str(len(matches))))
-                crt_image = cv2.drawMatchesKnn(
-                                rois_1[pos]['img'],rois_1[pos]['kp'],
-                                rois_2[pos]['img'],rois_2[pos]['kp'],
-                                [matches], flags=2, outImg=None)
-
-                img_matches.append(crt_image)
-                cv2.imshow('matches', crt_image)
-                if cv2.waitKey(10000): pass
-                cv2.destroyAllWindows()
-
-        return numberof_matches, numberof_matches_detailed
 
     def get_matches(self, roipos_1, roipos_2,
                     dratio, stdev_angle, stdev_dist):
