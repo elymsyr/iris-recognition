@@ -8,8 +8,8 @@ with open("requirements.txt") as f:
 
 setup(
     name="iris_system",
-    version="0.0.2",
-    description="""Python Application for an Iris Recognition System using OpenCV. The project aims to create a database system and iris analyzer for fast fast and accurate iris recognition. See for more, https://github.com/elymsyr/iris-recognition.""",
+    version="0.1.0",
+    description="""Developing a robust tool for iris image analysis and recognition, including planned features such as advanced extraction and comparison of iris data, performance optimization using Random Forest Classifiers over keypoints, improvements for challenging conditions and database control. See for more, https://github.com/elymsyr/iris-recognition.""",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Orhun Eren Yalçınkaya",
