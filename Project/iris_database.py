@@ -3,6 +3,7 @@ from os import listdir
 from random import choice
 from pickle import dumps, loads
 import cv2
+from typing import Union
 from random import shuffle
 from iris_recognition import IrisRecognizer
 from decorators import counter, suppress_print, capture_prints_to_file
@@ -31,7 +32,6 @@ class IrisSystem():
         - **process_and_store_iris(path: str)**: Loads and stores iris data from a specified folder path.
         - **compare_iris(image_tag_1: str, image_tag_2: str, ...) -> tuple[dict, dict, dict]**: Compares two irises from the database.
     """
-
     def __init__(self, db_path: str = None, recognizer: IrisRecognizer = None) -> None:
         """
         Initializes the IrisSystem with the specified database path and recognizer.
@@ -193,25 +193,35 @@ class IrisSystem():
         return [cv2.KeyPoint(x, y, size, angle, response, octave, class_id)
                 for (x, y, size, angle, response, octave, class_id) in serialized_keypoints]
 
-    def check_db_free(self, feature_tag: str) -> bool:
+    def check_db_free(self, feature_tag: str, db_name: Union[list, str] = None) -> bool:
         """Check if the iris with the feature_tag exist in db. 
 
         Args:
             feature_tag (str): Iris tag
+            db_name (list, str): Check also other databases.
 
         Returns:
             bool: True if not exist
         """
+        exist = []
+        if db_name:
+            for database in db_name if isinstance(db_name, list) else [db_name]:
+                conn = connect(f'{database}.db')
+                cursor = conn.cursor()
+                cursor.execute("SELECT 1 FROM iris WHERE feature_tag = ?", (feature_tag,))
+                exist.append(cursor.fetchone() is None)
         conn = connect(f'{self.db_path}.db')
         cursor = conn.cursor()
         cursor.execute("SELECT 1 FROM iris WHERE feature_tag = ?", (feature_tag,))
-        return cursor.fetchone() is None
+        exist.append(cursor.fetchone() is None)
+        return all(exist)
 
-    def process_and_store_iris(self, path: str):
+    def process_and_store_iris(self, path: str, db_names_to_check: Union[list, str] = None):
         """Load data to db.
 
         Args:
             path (str): Data folder path.
+            db_names_to_check (list, str): Check other databases if the processing iris exists.
         """
         ids = []
         for folder in listdir(path=path):
@@ -225,7 +235,7 @@ class IrisSystem():
             for image in listdir(path+f"{id_text}/"):
                 iris_path = path+f"{id_text}/{image}"
                 image_name = image.replace('.jpg','')
-                if self.check_db_free(image_name):
+                if self.check_db_free(image_name, db_names_to_check):
                     rois = self.recognizer.load_rois_from_image(iris_path, False)
                     self.insert_iris(image_name, id, rois)
                 else: print(f'{image_name} found in db.')
