@@ -1,6 +1,6 @@
 # Iris Recognition System
 
-The Iris Recognition System is a project aimed at developing a robust tool for iris image analysis and recognition. It includes planned features such as advanced extraction and comparison of iris data, performance optimization using Random Forest Classifiers over keypoints, and improvements for challenging conditions. The system will include a database for efficient data management and future enhancements for real-time applications with a GUI or mobile app. Forked from [**andreibercu/iris-recognition**](https://github.com/andreibercu/iris-recognition), the project has been updated to Python 3.9.x and is designed to enhance iris recognition accuracy and speed.
+The Iris Recognition System is a project aimed at developing a robust tool for iris image analysis and recognition. It includes planned features such as advanced extraction and comparison of iris data, performance optimization using Random Forest Classifiers over keypoints, and improvements for challenging conditions. The system includes a database for efficient data management and possible future enhancements for real-time applications with a GUI or mobile app. Forked from [**andreibercu/iris-recognition**](https://github.com/andreibercu/iris-recognition), the project has been updated to Python 3.9.x and is designed to enhance iris recognition accuracy and speed.
 
 ## Table of Contents
 
