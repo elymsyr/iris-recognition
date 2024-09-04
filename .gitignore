@@ -3,6 +3,7 @@
 playground.*
 check_commit.py
 *.json
+test_release.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
