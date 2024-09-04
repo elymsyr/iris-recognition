@@ -2,23 +2,45 @@ from sqlite3 import connect
 from os import listdir
 from random import choice
 from pickle import dumps, loads
-from gzip import open
-import cv2, csv
+import cv2
 from random import shuffle
 from iris_recognition import IrisRecognizer
 from decorators import counter, suppress_print, capture_prints_to_file
 
 class IrisSystem():
+    """
+    Iris Database Control System for managing iris data, including creation, insertion, retrieval, and comparison.
+
+    This class provides methods to interact with an iris database. It includes functionality to:
+    - Create tables for storing iris data and its features.
+    - Insert and retrieve iris data from the database.
+    - Serialize and deserialize keypoints for efficient storage.
+    - Compare iris data using an integrated recognizer class.
+
+    Attributes:
+        db_path (str): Path to the database file. If not specified, a new database will be created.
+        recognizer (IrisRecognizer, optional): An instance of IrisRecognizer for iris recognition and comparison.
+
+    Methods:
+        - **create_tables()**: Creates necessary tables in the database for storing iris data.
+        - **insert_iris(feature_tag: str, iris_id: int, feature_data: dict) -> bool**: Inserts iris data into the database.
+        - **retrieve_iris(feature_tag: str) -> dict**: Retrieves iris data from the database based on a feature tag.
+        - **serialize_keypoints(keypoints) -> list[tuple]**: Converts a list of keypoints to a serializable format.
+        - **deserialize_keypoints(serialized_keypoints) -> list[cv2.KeyPoint]**: Converts serialized keypoints back to KeyPoint objects.
+        - **check_db_free(feature_tag: str) -> bool**: Checks if the iris with the given feature tag exists in the database.
+        - **process_and_store_iris(path: str)**: Loads and stores iris data from a specified folder path.
+        - **compare_iris(image_tag_1: str, image_tag_2: str, ...) -> tuple[dict, dict, dict]**: Compares two irises from the database.
+    """
+
     def __init__(self, db_path: str = None, recognizer: IrisRecognizer = None) -> None:
-        """Iris Database Control System 
+        """
+        Initializes the IrisSystem with the specified database path and recognizer.
 
         Args:
-            db_path (str): Create new db using self.create_tables() or use existing db.
-            recognizer_parameters (dict, optional): Create recognizer with defult parameters. Defaults to None.
-            log_path (str, optional): Defaults to 'log.txt'.
+            db_path (str, optional): Path to the database file. If None, a new database will be created using `create_tables()`.
+            recognizer (IrisRecognizer, optional): An instance of `IrisRecognizer` for iris recognition.
         """
         self.db_path = db_path
-        # if not exists(f'{self.db_path}.db'): self.create_tables()
         self.recognizer = recognizer
 
     def create_tables(self):
@@ -237,6 +259,26 @@ class IrisSystem():
 
 
 class IrisSystemOptimizationTest(IrisSystem):
+    """
+    A class that extends the IrisSystem to perform optimization tests on iris recognition parameters.
+
+    This class provides methods to randomly select and analyze iris data, optimize parameters for better 
+    recognition accuracy, and read and classify results from optimization tests. The class leverages the 
+    existing database of iris data and provides functionality to test various parameters for improving 
+    iris recognition performance.
+
+    Methods:
+        - **random_iris_tag(iris_id: int) -> str**: Retrieves a random iris tag associated with the given iris ID.
+        
+        - **optimization_test(\*\*parameters) -> dict:**: Conducts optimization tests by analyzing random selections from the current database or images 
+            and returns the test results.
+
+        - **read_results(results: dict)**: Processes and analyzes the test results to determine the optimal parameters for iris recognition.
+        
+        - **get_unique_iris_ids() -> list**: Retrieves a list of unique iris IDs from the database.
+        
+        - **key_points_classify(results: dict, parameter_id: int = 0) -> list**: Classifies key points from the optimization test results.
+    """    
     def random_iris_tag(self, iris_id: int) -> str:
         """Get random iris tag with iris_id.
 

@@ -9,6 +9,42 @@ from matplotlib import pyplot as plt
 from decorators import counter
 
 class IrisRecognizer():
+    """
+    A class for iris recognition that processes images to detect and analyze the iris and pupil.
+
+    Attributes:
+        detector : str
+            The feature detection algorithm to use ('ORB' or 'SIFT').
+        kp_size_min : int
+            The minimum size of keypoints to consider.
+        kp_size_max : int
+            The maximum size of keypoints to consider.
+
+    Methods:
+        - **load_rois_from_image(filepath: str, show: bool = True)**
+            Loads an image, detects iris boundaries, and extracts regions of interest (ROIs).
+        
+        - **load_image(filepath: str, show: bool = False)**
+            Loads an image from a file and optionally displays it.
+
+        - **get_iris_boundaries(img, show: bool = False)**
+            Finds the inner and outer boundaries of the iris.
+
+        - **find_pupil(img)**
+            Detects the pupil boundary using image processing techniques.
+
+        - **get_mean_circle(circles, draw=None)**
+            Computes the mean circle from a list of detected circles.
+
+        - **find_ext_iris(img, pupil_circle, center_range, radius_range)**
+            Detects the outer boundary of the iris using the Hough Circles method.
+
+        - **point_in_circle(c_col, c_row, c_radius, p_col, p_row)**
+            Checks if a point is within a given circle.
+
+        - **filtered_circles(circles, draw=None)**
+            Filters the detected circles to find the most likely candidates for the iris boundary.
+    """
     def __init__(self, detector: str = 'ORB', kp_size_min: int = 0, kp_size_max: int = 100) -> None:
         self.detector = detector
         self.kp_size_min = kp_size_min
