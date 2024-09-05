@@ -6,7 +6,7 @@ recognizer = IrisRecognizer()
 system = IrisSystemOptimizationTest(db_path='Database/iris_db_syn_orb_0_100', recognizer=recognizer)
 
 parameters = {
-    "test_size_diff" : 5000,
+    "test_size_diff" : 8000,
     "test_size_same" : 1300,
     "dratio_list" : [0.92],
     "stdev_angle_list" : [10],
@@ -15,8 +15,8 @@ parameters = {
 
 results = system.optimization_test(**parameters)
 
-with open(f'test.json', 'w') as json_file:
-    json.dump(results, json_file, indent=4)
+# with open(f'test.json', 'w') as json_file:
+#     json.dump(results, json_file, indent=4)
 
 system.read_results({'results':results})
 

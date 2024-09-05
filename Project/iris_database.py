@@ -509,7 +509,7 @@ class IrisSystemOptimizationTest(IrisSystem):
         return unique_iris_ids
 
     def key_points_classify(self, results: dict, parameter_id: int = 0):
-        def add_to_csv_dict(kp: cv2.KeyPoint, to_csv: list, pos: str, tag: str, match_point: int):
+        def add_to_csv_dict(kp: cv2.KeyPoint, to_csv: list, pos: str, tag: str, match_point: int, blur: float):
             new_item = {}
             new_item['match'] = match_point
             new_item['image_tag'] = tag
@@ -520,6 +520,7 @@ class IrisSystemOptimizationTest(IrisSystem):
             new_item['angle'] = kp.angle
             new_item['response'] = kp.response
             new_item['octave'] = kp.octave
+            new_item['blur'] = blur
             to_csv.append(new_item)
             return to_csv
         to_csv: list = []
@@ -531,13 +532,22 @@ class IrisSystemOptimizationTest(IrisSystem):
                 rois_2 = self.retrieve_iris(tag_2)
                 matches = value['matches_detailed']
                 sides = ['right-side', 'left-side', 'bottom', 'complete']
-
+                id_1 = tag_1[2:5]
+                id_2 = tag_2[2:5]
+                iris_1_path = f'IrisDB/CASIA-Iris-Syn/{id_1}/{tag_1}.jpg'
+                iris_2_path = f'IrisDB/CASIA-Iris-Syn/{id_2}/{tag_2}.jpg'
                 for pos in sides:
+                    blur_1 = self.is_blurry(iris_1_path)
+                    blur_2 = self.is_blurry(iris_2_path)
                     for match in matches[pos]:
                         queryIdx = match['queryIdx']
                         trainIdx = match['trainIdx']
                         key_point_1 = rois_1[pos]['kp'][queryIdx-1]
                         key_point_2 = rois_2[pos]['kp'][trainIdx-1]
-                        to_csv = add_to_csv_dict(key_point_1, to_csv, pos, tag_1, match_point)
-                        to_csv = add_to_csv_dict(key_point_2, to_csv, pos, tag_2, match_point)
+                        to_csv = add_to_csv_dict(key_point_1, to_csv, pos, tag_1, match_point, blur_1)
+                        to_csv = add_to_csv_dict(key_point_2, to_csv, pos, tag_2, match_point, blur_2)
         return to_csv
+
+    def is_blurry(self, image_path):
+        image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+        return cv2.Laplacian(image, cv2.CV_64F).var()
