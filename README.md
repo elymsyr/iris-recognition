@@ -16,7 +16,7 @@ The Iris Recognition System is a project aimed at developing a robust tool for i
 Improving analysis speed and extraction of features from iris images and creating a dictionary for recognition. Iris recognition accuracy is planned to be improved through keypoint classifying using Random Forest Classifiers or else, see [Match or No Match: Keypoint Filtering Based on Matching Probability Youtube Video](https://www.youtube.com/watch?v=4jV3S04ejFc&t=521s) and [Keypoint Recognition Using Random Forests and Random Ferns by V. Lepetit & P. Fua](https://link.springer.com/chapter/10.1007/978-1-4471-4929-3_9). In order to create a test data, functions is applied, see [Usage](#usage)
 ### **Performance Improvements**
 Enhancements for recognition performance and speed, especially under suboptimal camera conditions.
-### [x] **Database Integration and Optimization for Fast Querying**
+### **Database Integration and Optimization for Fast Querying**
 Save and retrieve iris data using a database.
 ### **Future Developments**
 Plans to create a GUI or mobile app for dynamic and in real-time use.
