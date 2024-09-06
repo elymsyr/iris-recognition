@@ -7,6 +7,7 @@ from inspect import getouterframes, currentframe
 import cv2, math
 from matplotlib import pyplot as plt
 from decorators import counter
+from model_handler import ModelHandler
 
 class IrisRecognizer():
     """
@@ -19,6 +20,13 @@ class IrisRecognizer():
             The minimum size of keypoints to consider.
         kp_size_max : int
             The maximum size of keypoints to consider.
+        kp_filter_model : tuple[str, str, float]
+            Model type, model path and prediction threshold (Between 0 and 1) to filter keypoints using a model. 
+            - Supported models - model types:
+                - XGBoost - xgboost, xgbclassifier
+                - LightGBM - lightgbm
+                - Keras/TensorFlow Models - keras
+                - Scikit-Learn Compatible Models - sklearn
 
     Methods:
         - **load_rois_from_image(filepath: str, show: bool = True)**
@@ -45,10 +53,16 @@ class IrisRecognizer():
         - **filtered_circles(circles, draw=None)**
             Filters the detected circles to find the most likely candidates for the iris boundary.
     """
-    def __init__(self, detector: str = 'ORB', kp_size_min: int = 0, kp_size_max: int = 100) -> None:
+    def __init__(self, detector: str = 'ORB', kp_size_min: int = 0, kp_size_max: int = 100, kp_filter_model: tuple[str, str, float] = None) -> None:
         self.detector = detector
         self.kp_size_min = kp_size_min
         self.kp_size_max = kp_size_max
+        self.model = None
+        self.model_type = kp_filter_model[0]
+        self.model_path = kp_filter_model[1]
+        self.model_threshold = kp_filter_model[2]
+        if kp_filter_model:
+            self.model = ModelHandler.load_model(file_path=self.model_path, model_type=self.model_type)
 
     @counter
     def load_rois_from_image(self, filepath: str, show = True):
@@ -547,6 +561,8 @@ class IrisRecognizer():
                 elif float(kp.size) > self.kp_size_max or float(kp.size) < self.kp_size_min: 
                     wrong_kp_size+=1
                     kp_list.remove(kp)
+                elif self.model and not self.kp_model_predict(kp):
+                    kp_list.remove(kp)
             rois[pos]['kp'] = tuple(kp_list)
             if pos == 'complete' : rois['kp_filtered_len'] = len(rois[pos]['kp'])
 
@@ -582,6 +598,10 @@ class IrisRecognizer():
                 plt.xticks([]), plt.yticks([])
                 i+=1
             plt.show()
+
+    def kp_model_predict(self, kp):
+        prediction = float(list(ModelHandler.predict(model=self.model, data=kp, threshold=self.model_threshold))[0])
+        return bool(prediction > self.model_threshold)
 
     @counter
     def load_descriptors(self, sift, rois):
