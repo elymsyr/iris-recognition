@@ -7,7 +7,9 @@ from inspect import getouterframes, currentframe
 import cv2, math
 from matplotlib import pyplot as plt
 from decorators import counter
-from model_handler import ModelHandler
+from xgboost import XGBModel, DMatrix
+from pandas import DataFrame
+from sklearn.preprocessing import MinMaxScaler
 
 class IrisRecognizer():
     """
@@ -20,13 +22,9 @@ class IrisRecognizer():
             The minimum size of keypoints to consider.
         kp_size_max : int
             The maximum size of keypoints to consider.
-        kp_filter_model : tuple[str, str, float]
-            Model type, model path and prediction threshold (Between 0 and 1) to filter keypoints using a model. 
-            - Supported models - model types:
-                - XGBoost - xgboost, xgbclassifier
-                - LightGBM - lightgbm
-                - Keras/TensorFlow Models - keras
-                - Scikit-Learn Compatible Models - sklearn
+        model : XGBModel
+        scaler : MinMaxScaler
+        model_threshold : float (Default 0.5)
 
     Methods:
         - **load_rois_from_image(filepath: str, show: bool = True)**
@@ -53,16 +51,13 @@ class IrisRecognizer():
         - **filtered_circles(circles, draw=None)**
             Filters the detected circles to find the most likely candidates for the iris boundary.
     """
-    def __init__(self, detector: str = 'ORB', kp_size_min: int = 0, kp_size_max: int = 100, kp_filter_model: tuple[str, str, float] = None) -> None:
+    def __init__(self, detector: str = 'ORB', kp_size_min: int = 0, kp_size_max: int = 100, model: XGBModel = None, scaler: MinMaxScaler = None, model_threshold: float = 0.5) -> None:
         self.detector = detector
         self.kp_size_min = kp_size_min
         self.kp_size_max = kp_size_max
-        self.model = None
-        self.model_type = kp_filter_model[0]
-        self.model_path = kp_filter_model[1]
-        self.model_threshold = kp_filter_model[2]
-        if kp_filter_model:
-            self.model = ModelHandler.load_model(file_path=self.model_path, model_type=self.model_type)
+        self.model = model
+        self.scaler = scaler
+        self.model_threshold = model_threshold
 
     @counter
     def load_rois_from_image(self, filepath: str, show = True):
@@ -87,7 +82,10 @@ class IrisRecognizer():
             detector = cv2.SIFT_create()
         elif self.detector == 'ORB':
             detector = cv2.ORB_create()
-        self.load_keypoints(detector, rois, show=show)
+
+        blur_ratio = self.is_blurry(image_path=filepath)
+
+        self.load_keypoints(detector, rois, show=show, blur_ratio=blur_ratio)
         self.load_descriptors(detector, rois)
 
         print(f"Rois completed for {(filepath.split('/'))[-1].replace('.jpg', '')}.")
@@ -498,11 +496,11 @@ class IrisRecognizer():
         return rois
 
     @counter
-    def load_keypoints(self, sift, rois, show=False, show_pos: list = ['right-side','left-side','bottom', 'complete']):
+    def load_keypoints(self, sift, rois, blur_ratio = None, show=False, show_pos: list = ['right-side','left-side','bottom', 'complete']):
         bf = cv2.BFMatcher()
 
 
-        for pos in ['right-side','left-side','bottom','complete']:
+        for pos_id, pos in enumerate(['right-side','left-side','bottom','complete']):
             # cv2.imshow(f"rois['{pos}']['img_kp_init'] Before", rois[pos]['img_kp_init'])
             rois[pos]['kp'] = sift.detect(rois[pos]['img'],None)
             # for i, kp in enumerate(rois[pos]['kp'][0:2]):
@@ -534,6 +532,7 @@ class IrisRecognizer():
             outside = 0
             wrong_angle = 0
             wrong_kp_size = 0
+            model_filter = 0
             if pos == 'complete' : rois['kp_len'] = len(rois[pos]['kp'])
             kp_list = list(rois[pos]['kp'][:])
             kp_list_loop = list(rois[pos]['kp'][:])
@@ -561,11 +560,23 @@ class IrisRecognizer():
                 elif float(kp.size) > self.kp_size_max or float(kp.size) < self.kp_size_min: 
                     wrong_kp_size+=1
                     kp_list.remove(kp)
-                elif self.model and not self.kp_model_predict(kp):
-                    kp_list.remove(kp)
+                elif self.model:
+                    data = DataFrame({
+                        'pos': [pos_id],
+                        'point_x': [kp.pt[0]],
+                        'point_y': [kp.pt[1]],
+                        'size': [kp.size],
+                        'angle': [kp.angle],
+                        'response': [kp.response],
+                        'blur': [blur_ratio]
+                    })
+                    data = self.scaler.transform(data).reshape(1, -1)
+                    if not self.kp_model_predict(DMatrix(data)):
+                        kp_list.remove(kp)
+                        model_filter += 1
             rois[pos]['kp'] = tuple(kp_list)
             if pos == 'complete' : rois['kp_filtered_len'] = len(rois[pos]['kp'])
-
+            print(model_filter)
             if show:
                 size = []
                 for keypoint in list(rois[pos]['kp'][:]):
@@ -599,8 +610,12 @@ class IrisRecognizer():
                 i+=1
             plt.show()
 
+    def is_blurry(self, image_path):
+        image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+        return cv2.Laplacian(image, cv2.CV_64F).var()
+
     def kp_model_predict(self, kp):
-        prediction = float(list(ModelHandler.predict(model=self.model, data=kp, threshold=self.model_threshold))[0])
+        prediction = float(list(self.model.predict(kp))[0])
         return bool(prediction > self.model_threshold)
 
     @counter

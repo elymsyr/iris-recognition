@@ -3,10 +3,37 @@ from os import listdir
 from random import choice
 from pickle import dumps, loads
 import cv2
+from os.path import exists
 from typing import Union
 from random import shuffle
 from iris_recognition import IrisRecognizer
+from iris_database import IrisSystem
+from xgboost import Booster
+import joblib
 from decorators import counter, suppress_print, capture_prints_to_file
+
+def create_system(db_path: str, model_path: str, scaler_path: str, detector: str = 'ORB', kp_size_min: float = 0, kp_size_max: float = 1000, model_threshold: float = 0.5) -> tuple[IrisSystem, IrisRecognizer]:
+    # Load the trained model
+    model = Booster()
+    model.load_model(model_path)
+    scaler = joblib.load(scaler_path)
+    
+    parameters = {
+        'detector': detector,
+        'kp_size_min': kp_size_min,
+        'kp_size_max': kp_size_max,
+        'model': model,
+        'scaler': scaler,
+        'model_threshold': model_threshold
+    }
+    
+    recognizer = IrisRecognizer(**parameters)
+    system = IrisSystem(db_path=db_path, recognizer=recognizer)
+    
+    if not exists(db_path):
+        system.create_tables()
+        
+    return system, recognizer
 
 class IrisSystem():
     """
@@ -113,7 +140,7 @@ class IrisSystem():
                         dumps(data['img']),
                         serialized_kp,
                         serialized_pupil_circle,
-                        serialized_ext_circle,                
+                        serialized_ext_circle,
                         dumps(data['des'])
                     ))
 
