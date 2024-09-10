@@ -10,6 +10,7 @@ from decorators import counter
 from xgboost import XGBModel, DMatrix
 from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler
+import gc
 
 class IrisRecognizer():
     """
@@ -88,6 +89,9 @@ class IrisRecognizer():
         self.load_keypoints(detector, rois, show=show, blur_ratio=blur_ratio)
         self.load_descriptors(detector, rois)
 
+        del blur_ratio
+        gc.collect()
+        
         print(f"Rois completed for {(filepath.split('/'))[-1].replace('.jpg', '')}.")
         return rois
 
