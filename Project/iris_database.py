@@ -7,33 +7,9 @@ from os.path import exists
 from typing import Union
 from random import shuffle
 from iris_recognition import IrisRecognizer
-from iris_database import IrisSystem
 from xgboost import Booster
 import joblib
 from decorators import counter, suppress_print, capture_prints_to_file
-
-def create_system(db_path: str, model_path: str, scaler_path: str, detector: str = 'ORB', kp_size_min: float = 0, kp_size_max: float = 1000, model_threshold: float = 0.5) -> tuple[IrisSystem, IrisRecognizer]:
-    # Load the trained model
-    model = Booster()
-    model.load_model(model_path)
-    scaler = joblib.load(scaler_path)
-    
-    parameters = {
-        'detector': detector,
-        'kp_size_min': kp_size_min,
-        'kp_size_max': kp_size_max,
-        'model': model,
-        'scaler': scaler,
-        'model_threshold': model_threshold
-    }
-    
-    recognizer = IrisRecognizer(**parameters)
-    system = IrisSystem(db_path=db_path, recognizer=recognizer)
-    
-    if not exists(db_path):
-        system.create_tables()
-        
-    return system, recognizer
 
 class IrisSystem():
     """
@@ -578,3 +554,26 @@ class IrisSystemOptimizationTest(IrisSystem):
     def is_blurry(self, image_path):
         image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
         return cv2.Laplacian(image, cv2.CV_64F).var()
+
+def create_system(db_path: str, model_path: str, scaler_path: str, detector: str = 'ORB', kp_size_min: float = 0, kp_size_max: float = 1000, model_threshold: float = 0.5) -> tuple[IrisSystem, IrisRecognizer]:
+    # Load the trained model
+    model = Booster()
+    model.load_model(model_path)
+    scaler = joblib.load(scaler_path)
+    
+    parameters = {
+        'detector': detector,
+        'kp_size_min': kp_size_min,
+        'kp_size_max': kp_size_max,
+        'model': model,
+        'scaler': scaler,
+        'model_threshold': model_threshold
+    }
+    
+    recognizer = IrisRecognizer(**parameters)
+    system = IrisSystem(db_path=db_path, recognizer=recognizer)
+    
+    if not exists(db_path):
+        system.create_tables()
+        
+    return system, recognizer
