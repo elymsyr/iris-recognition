@@ -16,7 +16,11 @@ ResultsModel Comparison with Raw Data
 
 **Accuracy:** 0.6972
 **AUC:** 0.7623
-**Confusion Matrix:** [Images/xgboost_cm_0.png](Images/xgboost_cm_0.png)
+**Confusion Matrix:**
+
+- <p align="center">
+  <img src="Images/xgb_confusion_matrix_0.png" alt="xgb_confusion_matrix" width="30%" style="display:inline-block;">
+</p>
 
 #### Comparison
 
