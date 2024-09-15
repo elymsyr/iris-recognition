@@ -12,12 +12,20 @@ The Iris Recognition System is a project aimed at developing a robust tool for i
 - [Contact](#contact)
 
 ## Development
+
 ### **Improved Iris Analysis**
-Improving analysis speed and extraction of features from iris images and creating a dictionary for recognition. Iris recognition accuracy is planned to be improved through keypoint classifying using Random Forest Classifiers or else, see [Match or No Match: Keypoint Filtering Based on Matching Probability Youtube Video](https://www.youtube.com/watch?v=4jV3S04ejFc&t=521s) and [Keypoint Recognition Using Random Forests and Random Ferns by V. Lepetit & P. Fua](https://link.springer.com/chapter/10.1007/978-1-4471-4929-3_9). In order to create a test data, functions is applied, see [Usage](#usage)
+Improving analysis speed and extraction of features from iris images and creating a dictionary for recognition
+
+#### Updates: 
+- Iris recognition accuracy is planned to be improved through keypoint classifying using Random Forest Classifiers or else, see [Match or No Match: Keypoint Filtering based on Matching Probability](https://openaccess.thecvf.com/content_CVPRW_2020/papers/w61/Papadaki_Match_or_No_Match_Keypoint_Filtering_Based_on_Matching_Probability_CVPRW_2020_paper.pdf) and [Keypoint Recognition Using Random Forests and Random Ferns by V. Lepetit & P. Fua](https://link.springer.com/chapter/10.1007/978-1-4471-4929-3_9). In order to create a test data, functions is applied, see [Usage](#usage)
+- Test results for key point filtered matching are updated [here](Observations.md).
+
 ### **Performance Improvements**
 Enhancements for recognition performance and speed, especially under suboptimal camera conditions.
+
 ### **Database Integration and Optimization for Fast Querying**
 Save and retrieve iris data using a database.
+
 ### **Future Developments**
 Plans to create a GUI or mobile app for dynamic and in real-time use.
 
