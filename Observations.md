@@ -15,7 +15,7 @@ ResultsModel Comparison with Raw Data
 #### Evaluation
 
 **Accuracy:** 0.6972
-**AUC:** 0.7623
+**AUC:** 0.7623 <br>
 **Confusion Matrix:**
 
 - <p align="center">
