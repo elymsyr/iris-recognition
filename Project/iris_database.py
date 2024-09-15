@@ -323,7 +323,7 @@ class IrisSystemOptimizationTest(IrisSystem):
         return random_row[0]
 
     @counter
-    @capture_prints_to_file('log.txt')
+    # @capture_prints_to_file('log.txt')
     def optimization_test(self, test_size_diff: int = 10, test_size_same: int = 10, dratio_list: list = [0.9, 0.95, 0.8, 0.75], stdev_angle_list: list = [10, 20, 5, 25], stdev_dist_list: list = [0.10, 0.15, 0.20]) -> dict:
         """Tests parameters over current db or from images by randomly selection.
 
@@ -342,6 +342,10 @@ class IrisSystemOptimizationTest(IrisSystem):
         test_number = 0
         possible_parameters = []
 
+        kp_number = []
+        match_number = []
+        false_match_number = []
+        
         for dratio in dratio_list:
             for stdev_angle in stdev_angle_list:
                 for stdev_dist in stdev_dist_list:
@@ -409,6 +413,8 @@ class IrisSystemOptimizationTest(IrisSystem):
                     print(f"Analysing {first_class}/{rois_1} {second_class}/{rois_2}...")
                     try:
                         iris_1, iris_2, matches, matches_detailed = self.compare_iris(image_tag_1=rois_1, image_tag_2=rois_2, **parameter)
+                        kp_number.append(sum(len(iris_1[side]['kp']) for side in ['right-side','left-side','bottom','complete']))
+                        kp_number.append(sum(len(iris_2[side]['kp']) for side in ['right-side','left-side','bottom','complete']))
                         new_test['tags'] = [rois_1, rois_2]
                         new_test['classes'] = [first_class, second_class]
                         new_test['keypoints'] = [{side: len(iris_1[side]['kp']) for side in ['right-side','left-side','bottom','complete']}, {side: len(iris_2[side]['kp']) for side in ['right-side','left-side','bottom','complete']}]
@@ -418,8 +424,10 @@ class IrisSystemOptimizationTest(IrisSystem):
                         
                         if test_order == 0:
                             results_dif[param_id][test_id] = new_test
+                            false_match_number.append(sum(matches[key] for key in matches.keys()))
                         else:
                             results_same[param_id][test_id] = new_test
+                            match_number.append(sum(matches[key] for key in matches.keys()))
                         if test_order == 0:
                             test_class = 'False'
                         else: test_class = 'True'
@@ -432,6 +440,7 @@ class IrisSystemOptimizationTest(IrisSystem):
                 test_order += 1
         param_dict['false_match']['details'] = results_dif
         param_dict['true_match']['details'] = results_same
+        print(f"Database: {self.db_path}\nMatch avg: {sum(match_number)/len(match_number)} - {max(match_number)} - {min(match_number)}\nFalse match avg: {sum(false_match_number)/len(false_match_number)} - {max(false_match_number)} - {min(false_match_number)}\nKP number: {sum(kp_number)/len(kp_number)} - {max(kp_number)} - {min(kp_number)}")
         return param_dict
 
     def read_results(self, results: dict):

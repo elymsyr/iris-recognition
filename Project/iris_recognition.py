@@ -580,7 +580,7 @@ class IrisRecognizer():
                         model_filter += 1
             rois[pos]['kp'] = tuple(kp_list)
             if pos == 'complete' : rois['kp_filtered_len'] = len(rois[pos]['kp'])
-            print(model_filter)
+            print(f"{inside=}\n{outside=}\n{wrong_angle=}\n{wrong_kp_size=}\n{model_filter=}")
             if show:
                 size = []
                 for keypoint in list(rois[pos]['kp'][:]):
@@ -605,10 +605,10 @@ class IrisRecognizer():
         if show:
             i=0
             for pos in show_pos:
-                plt.subplot(3, 2, 2*i+1), \
+                plt.subplot(4, 2, 2*i+1), \
                 plt.imshow(rois[pos]['img_kp_init'])
                 plt.xticks([]), plt.yticks([])
-                plt.subplot(3, 2, 2*i+2), \
+                plt.subplot(4, 2, 2*i+2), \
                 plt.imshow(rois[pos]['img_kp_filtered'])
                 plt.xticks([]), plt.yticks([])
                 i+=1

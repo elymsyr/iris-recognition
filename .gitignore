@@ -4,6 +4,7 @@ playground.*
 check_commit.py
 *.json
 /Database
+*.pkl
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
