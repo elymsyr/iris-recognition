@@ -1,5 +1,0 @@
-# Auto detect text files and perform LF normalization
-* text=auto
-*.json filter=lfs diff=lfs merge=lfs -text
-*.db filter=lfs diff=lfs merge=lfs -text
-Database/iris_db_syn_orb_0_100_test.db filter=lfs diff=lfs merge=lfs -text
